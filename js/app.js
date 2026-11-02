@@ -3,6 +3,7 @@ window.CRM = window.CRM || {};
 (function (CRM) {
   const U = CRM.util, S = CRM.store, esc = U.esc;
   const routen = CRM.views;
+  CRM.ui = CRM.ui || { intervall: null };
 
   function route() {
     const h = location.hash.replace(/^#\/?/, '');
@@ -12,11 +13,18 @@ window.CRM = window.CRM || {};
 
   function render() {
     const r = route();
+    if (CRM.ui.intervall) { clearInterval(CRM.ui.intervall); CRM.ui.intervall = null; }
+    document.body.classList.remove('druckansicht');
     document.querySelectorAll('#nav a').forEach((a) => a.classList.toggle('aktiv', a.dataset.route === r.name));
     const view = document.getElementById('view');
     const scrollY = window.scrollY;
-    view.innerHTML = routen[r.name].render(r.params);
-    if (routen[r.name].mount) routen[r.name].mount(view, r.params);
+    try {
+      view.innerHTML = routen[r.name].render(r.params);
+      if (routen[r.name].mount) routen[r.name].mount(view, r.params);
+    } catch (e) {
+      view.innerHTML = `<div class="hinweis fehler"><strong>Anzeigefehler:</strong> ${esc(e.message)}</div>`;
+      console.error(e);
+    }
     window.scrollTo(0, scrollY);
     renderSync();
   }
@@ -49,15 +57,15 @@ window.CRM = window.CRM || {};
     const handler = CRM.actions[el.dataset.action];
     if (!handler) return;
     e.preventDefault();
-    const daten = Object.assign({}, el.dataset);
-    handler(daten, el, e);
+    try { handler(Object.assign({}, el.dataset), el, e); } catch (err) { U.toast(err.message, 'fehler'); console.error(err); }
   });
   document.addEventListener('submit', (e) => {
     const f = e.target.closest('form[data-submit]');
     if (!f) return;
     e.preventDefault();
     const handler = CRM.actions[f.dataset.submit];
-    if (handler) handler(U.formData(f), f, e);
+    if (!handler) return;
+    try { handler(U.formData(f), f, e); } catch (err) { U.toast(err.message, 'fehler'); console.error(err); }
   });
   document.addEventListener('change', (e) => {
     const el = e.target.closest('[data-change]');
@@ -72,7 +80,6 @@ window.CRM = window.CRM || {};
       if (f) { e.preventDefault(); f.requestSubmit(); }
     }
   });
-  // Modal: Escape schließt (Standard), Klick auf den Hintergrund schließt ebenfalls
   document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') U.closeModal(); });
 
   window.addEventListener('hashchange', render);

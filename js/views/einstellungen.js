@@ -1,7 +1,52 @@
 window.CRM = window.CRM || {};
 CRM.views = CRM.views || {};
 (function (CRM) {
-  const U = CRM.util, S = CRM.store, esc = U.esc;
+  const U = CRM.util, S = CRM.store, K = S.K, esc = U.esc;
+
+  function stammdatenFormular() {
+    const s = S.data.stammdaten;
+    return `
+      <div class="panel">
+        <h3>Stammdaten (Absender auf Angeboten und Rechnungen)</h3>
+        <p class="muted klein">Pflichtangaben nach § 14 UStG: vollständiger Name und Anschrift, Steuernummer oder USt-IdNr. Die Daten liegen in der Datendatei, nicht im Browser.</p>
+        <form data-submit="stammdaten-speichern">
+          <div class="feld-reihe">
+            <div class="feld"><label>Name</label><input name="name" value="${esc(s.name)}" required></div>
+            <div class="feld"><label>Firmenbezeichnung (optional)</label><input name="firma" value="${esc(s.firma)}"></div>
+          </div>
+          <div class="feld"><label>Straße und Hausnummer</label><input name="strasse" value="${esc(s.strasse)}"></div>
+          <div class="feld-reihe">
+            <div class="feld"><label>PLZ</label><input name="plz" value="${esc(s.plz)}"></div>
+            <div class="feld"><label>Ort</label><input name="ort" value="${esc(s.ort)}"></div>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld"><label>E-Mail</label><input name="email" value="${esc(s.email)}"></div>
+            <div class="feld"><label>Telefon</label><input name="telefon" value="${esc(s.telefon)}"></div>
+          </div>
+          <div class="feld"><label>Website</label><input name="website" value="${esc(s.website)}"></div>
+          <div class="feld-reihe">
+            <div class="feld"><label>Steuernummer</label><input name="steuernummer" value="${esc(s.steuernummer)}"></div>
+            <div class="feld"><label>USt-IdNr.</label><input name="ustId" value="${esc(s.ustId)}"></div>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld"><label>IBAN</label><input name="iban" value="${esc(s.iban)}"></div>
+            <div class="feld"><label>BIC / Bank</label><div style="display:flex;gap:6px"><input name="bic" value="${esc(s.bic)}" placeholder="BIC"><input name="bank" value="${esc(s.bank)}" placeholder="Bank"></div></div>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld"><label>Standard-Stundensatz netto (€)</label><input name="stundensatz" type="number" min="0" step="5" value="${esc(s.stundensatz || '')}"></div>
+            <div class="feld"><label>Zahlungsziel (Tage)</label><input name="zahlungszielTage" type="number" min="0" value="${esc(s.zahlungszielTage)}"></div>
+          </div>
+          <div class="feld-reihe">
+            <div class="feld"><label>Standard-USt-Satz %</label><select name="steuersatz">${U.options(K.STEUERSAETZE.map(String), String(s.steuersatz))}</select></div>
+            <div class="feld"><label>Angebote gültig (Tage)</label><input name="angebotGueltigTage" type="number" min="1" value="${esc(s.angebotGueltigTage)}"></div>
+          </div>
+          <div class="feld feld-check"><input type="checkbox" id="klein" name="kleinunternehmer" ${s.kleinunternehmer ? 'checked' : ''}><label for="klein">Kleinunternehmerregelung § 19 UStG (keine Umsatzsteuer ausweisen)</label></div>
+          <div class="feld"><label>Fußtext Rechnung</label><textarea name="rechnungsFuss" style="min-height:50px">${esc(s.rechnungsFuss)}</textarea></div>
+          <div class="feld"><label>Fußtext Angebot</label><textarea name="angebotsFuss" style="min-height:40px">${esc(s.angebotsFuss)}</textarea></div>
+          <div class="form-aktionen"><button type="submit" class="btn btn-primary">Stammdaten speichern</button></div>
+        </form>
+      </div>`;
+  }
 
   function render() {
     const s = S.settings, m = S.meta, st = CRM.sync.status();
@@ -10,9 +55,12 @@ CRM.views = CRM.views || {};
       <h1>Einstellungen</h1>
       <div class="spalten-2">
         <div>
+          ${stammdatenFormular()}
+        </div>
+        <div>
           <div class="panel">
             <h3>GitHub-Anbindung</h3>
-            <p class="muted klein">Die Daten liegen als eine JSON-Datei in einem <strong>privaten</strong> Repo. Jede Änderung wird als Commit gespeichert, die Historie ist damit auf GitHub einsehbar. Der Token bleibt nur in diesem Browser (localStorage).</p>
+            <p class="muted klein">Die Daten liegen als eine JSON-Datei in einem <strong>privaten</strong> Repo. Jede Änderung wird als Commit gespeichert. Der Token bleibt nur in diesem Browser (localStorage).</p>
             <form data-submit="einstellungen-speichern">
               <div class="feld-reihe">
                 <div class="feld"><label>GitHub-Benutzer (Owner)</label><input name="owner" value="${esc(s.owner)}" placeholder="josadir" autocomplete="off"></div>
@@ -29,10 +77,8 @@ CRM.views = CRM.views || {};
               </div>
             </form>
             <div id="github-test"></div>
-          </div>
-          <div class="panel">
-            <h3>Synchronisation</h3>
-            <p><span class="punkt-inline"></span>Status: <strong>${esc(st.text)}</strong></p>
+            <h3 style="margin-top:14px">Synchronisation</h3>
+            <p>Status: <strong>${esc(st.text)}</strong></p>
             <p class="muted klein">Letzter Abgleich: ${m.lastSync ? U.fmtZeit(m.lastSync) : 'noch nie'} · ungesicherte Änderungen: ${m.dirty ? 'ja' : 'nein'}</p>
             <div class="toolbar" style="margin:0">
               <button class="btn" data-action="sync-jetzt">Jetzt abgleichen</button>
@@ -40,11 +86,9 @@ CRM.views = CRM.views || {};
               <button class="btn" data-action="sync-herunterladen" title="GitHub-Stand übernehmen, lokale Änderungen verwerfen">GitHub-Stand übernehmen</button>
             </div>
           </div>
-        </div>
-        <div>
           <div class="panel">
             <h3>Daten</h3>
-            <p class="muted klein">${d.contacts.length} Kontakte · ${d.deals.length} Vorgänge · ${d.activities.length} Aktivitäten · ${d.tasks.length} Aufgaben · Stand ${U.fmtZeit(d.updatedAt)}</p>
+            <p class="muted klein">${d.contacts.length} Kontakte · ${d.deals.length} Vorgänge · ${d.quotes.length} Angebote · ${d.orders.length} Aufträge · ${d.invoices.length} Rechnungen · ${d.times.length} Zeiten · ${d.expenses.length} Ausgaben · ${d.appointments.length} Termine · Stand ${U.fmtZeit(d.updatedAt)}</p>
             <div class="toolbar" style="margin:0 0 8px">
               <button class="btn" data-action="json-export">Sicherung herunterladen (JSON)</button>
               <button class="btn" data-action="json-import">Sicherung einspielen (JSON)</button>
@@ -52,6 +96,7 @@ CRM.views = CRM.views || {};
             <div class="toolbar" style="margin:0 0 8px">
               <button class="btn" data-action="csv-export">Kontakte als CSV</button>
               <button class="btn" data-action="csv-import">Kontakte aus CSV</button>
+              <button class="btn" data-action="kalender-export">Kalender (.ics)</button>
             </div>
             <div class="toolbar" style="margin:0">
               <button class="btn" data-action="demo-laden">Demo-Daten laden (fiktiv)</button>
@@ -59,15 +104,12 @@ CRM.views = CRM.views || {};
             </div>
           </div>
           <div class="panel">
-            <h3>Einrichtung in 5 Schritten</h3>
+            <h3>Kalender-Anbindung</h3>
             <ol class="schritte klein">
-              <li>Auf GitHub ein <strong>privates</strong> Repo anlegen, z. B. <code>crm-daten</code> (leer, mit README).</li>
-              <li>Token: GitHub → Settings → Developer settings → Personal access tokens → <strong>Fine-grained tokens</strong> → Generate. Repository access: <em>Only select repositories</em> → <code>crm-daten</code>. Permissions: <em>Contents: Read and write</em>. Ablauf z. B. 1 Jahr.</li>
-              <li>Owner, Repo und Token links eintragen, „Verbindung testen", dann „Speichern und synchronisieren". Die Datei <code>data/crm.json</code> wird beim ersten Mal automatisch angelegt.</li>
-              <li>Auf einem zweiten Gerät dieselben Angaben eintragen: die Daten kommen von GitHub.</li>
-              <li>Diese App selbst liegt in einem anderen Repo (<code>crm</code>) und läuft über GitHub Pages. Kundendaten gehören nie in dieses Repo.</li>
+              <li><strong>Einzeln:</strong> bei jedem Termin „Google" (öffnet Google Kalender mit allen Angaben) oder „.ics" (Outlook, Apple).</li>
+              <li><strong>Gesammelt:</strong> „Kalender (.ics)" exportiert Termine, fällige Aufgaben und Rechnungsfristen. In Google Kalender: Einstellungen → Importieren. Gleiche Kennungen, deshalb keine Dubletten beim erneuten Import.</li>
+              <li><strong>Per Claude (MCP):</strong> Claude mit Google-Calendar-Connector und Zugriff auf <code>crm.json</code> (GitHub-Connector oder Datei) bitten: „Lege alle Termine aus crm.json an, die noch nicht im Kalender sind, Kennung termin-&lt;id&gt; in die Beschreibung". Siehe README.</li>
             </ol>
-            <p class="muted klein">Grenzen: eine Datei bis 1 MB (reicht für mehrere tausend Kontakte). Zwei Geräte, die gleichzeitig ändern, erzeugen einen Konflikt. Dann fragt die App, welcher Stand gilt.</p>
           </div>
         </div>
       </div>`;
@@ -87,7 +129,7 @@ CRM.views = CRM.views || {};
     ziel.innerHTML = '<div class="hinweis">Prüfe …</div>';
     try {
       const info = await CRM.github.repoInfo(f);
-      if (!info) throw Object.assign(new Error("GitHub 404: Repo nicht gefunden"), { status: 404 });
+      if (!info) throw Object.assign(new Error('GitHub 404: Repo nicht gefunden'), { status: 404 });
       const datei = await CRM.github.getFile(Object.assign({ branch: 'main', path: 'data/crm.json' }, f));
       ziel.innerHTML = `<div class="hinweis ${info.private ? 'ok' : 'fehler'}">Repo <strong>${esc(info.full_name)}</strong> erreichbar, ${info.private ? 'privat' : '<strong>ÖFFENTLICH – bitte auf privat stellen, hier liegen Kundendaten!</strong>'}, Standard-Branch <code>${esc(info.default_branch)}</code>. Datei <code>${esc(f.path || 'data/crm.json')}</code>: ${datei ? 'vorhanden' : 'noch nicht vorhanden (wird beim Speichern angelegt)'}.</div>`;
     } catch (e) {
@@ -118,13 +160,13 @@ CRM.views = CRM.views || {};
     U.toast('Sicherung eingespielt', 'ok');
   };
   CRM.actions['demo-laden'] = () => {
-    if (S.data.contacts.length && !confirm('Demo-Daten ersetzen den aktuellen Stand. Fortfahren?')) return;
+    if (S.data.contacts.length && !confirm('Demo-Daten ersetzen den aktuellen Stand (auch Stammdaten). Fortfahren?')) return;
     S.replaceData(S.demoDaten(), true);
     U.toast('Demo-Daten geladen (alles fiktiv)', 'ok');
     location.hash = '#/uebersicht';
   };
   CRM.actions['alles-loeschen'] = () => {
-    if (!confirm('Wirklich ALLE Kontakte, Vorgänge, Aktivitäten und Aufgaben löschen? Vorher am besten eine Sicherung herunterladen.')) return;
+    if (!confirm('Wirklich ALLE Daten löschen (Kontakte, Belege, Zeiten, Ausgaben, Termine, Stammdaten)? Vorher am besten eine Sicherung herunterladen.')) return;
     if (!confirm('Letzte Frage: endgültig löschen?')) return;
     S.replaceData(S.leer(), true);
     U.toast('Alle Daten gelöscht');

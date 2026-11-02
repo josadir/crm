@@ -34,3 +34,22 @@ Fixkosten: **0 €**. Zeitkosten: Token einmal im Jahr erneuern.
 1. E-Mail-Verknüpfung: Gmail-Threads per Link in Aktivitäten eintragen (Hand), später n8n-Workflow, der eingehende Mails bekannter Kontakte als Aktivität in `crm.json` committet.
 2. Angebots-/Rechnungsnummern am Vorgang, Export für die Buchhaltung.
 3. Claude Code auf dem Daten-Repo: Wochenbericht, Scoring, Dublettensuche direkt auf `crm.json` (wie in Demo „Mini-CRM" der Schulung).
+
+## Erweiterung um ERP-Funktionen (02.11.2026, später am Tag)
+
+Vorbild war die Systemstruktur einer Schulungs-Referenzanwendung (Belegwesen, Aufträge mit Positionen, Rechnungen als eingefrorene Belege, Stempel-Zeiterfassung, Bestandsbewegungen, Termine, CSV-Export). Übernommen wurde nur die Struktur, keine fremden Inhalte und keine KI-Agenten.
+
+| Vorbild | Im CRM | Anpassung für einen Einzelunternehmer |
+|---|---|---|
+| Vorgänge mit Nummer, Historie, kein Löschen | Journal + Nummernkreise AN/AUF/RE | gleiche Regeln, ohne Freigabe durch Dritte |
+| Werkstattauftrag mit Teilen und Arbeit | Auftrag mit Positionen (Leistung, Pauschale, Auslage) | Stundensatz je Auftrag, Zeiten als Position übernehmen |
+| Rechnung aus fertigem Auftrag, Positionen eingefroren | identisch, plus Zahlung, Mahnstufen, Storno-Beleg, Pflichtangaben § 14 UStG | Schnellrechnung für Einzelleistungen |
+| Stempeluhr (kommen/gehen) | Timer + Zeiteinträge je Auftrag | keine Sollzeit, dafür abrechenbar/intern |
+| Bürobedarf mit Bestandsbewegungen | Ausgaben mit Kategorie und Vorsteuer | kein Lager nötig |
+| Buchhaltung (Reisekosten) | Finanzen: Monatsübersicht, USt je Quartal, offene Posten | Zufluss-Logik der EÜR |
+| Termine mit Sichtbarkeit | Termine mit Google-Link, .ics, Sammel-Export | Sichtbarkeit entfällt |
+| Nachrichten, Urlaub, Zertifikate, Wissen, Chat, Agenten | nicht übernommen | ohne Team ohne Nutzen; KI bewusst draußen |
+
+Zusätzlich auf Wunsch: Historie je Kunde (Gespräche, Belege, Phasen, Termine in einer Chronik) und Pipeline-Phasen „Abschluss" und „Nachbereitung" mit Checkliste.
+
+Kalender ohne Kosten: Google-Kalender-Links und .ics mit stabilen UIDs; MCP-Weg über Claude mit Google-Calendar-Connector dokumentiert (README).

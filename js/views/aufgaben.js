@@ -5,11 +5,12 @@ CRM.views = CRM.views || {};
   const zustand = { erledigte: false };
 
   function zeile(t) {
-    const v = t.dealId ? S.vorgang(t.dealId) : null;
+    const o = t.orderId ? S.auftrag(t.orderId) : null;
+    const prio = t.prioritaet === 'Dringend' ? '<span class="badge s-Verloren">Dringend</span> ' : t.prioritaet === 'Hoch' ? '<span class="badge s-Offen">Hoch</span> ' : '';
     return `<li>
       <input type="checkbox" data-change="aufgabe-erledigt" data-id="${esc(t.id)}" ${t.erledigt ? 'checked' : ''} aria-label="erledigt">
-      <span class="dehnen ${t.erledigt ? 'erledigt' : ''}"><button class="btn-link" data-action="aufgabe-bearbeiten" data-id="${esc(t.id)}">${esc(t.titel)}</button>
-        <div class="meta">${t.contactId ? `<a href="#/kontakte/${esc(t.contactId)}">${esc(S.kontaktName(t.contactId))}</a>` : ''}${v ? ' · ' + esc(v.titel) : ''}${t.erledigt ? ' · erledigt ' + U.fmtDatum(t.erledigt) : ''}</div></span>
+      <span class="dehnen ${t.erledigt ? 'erledigt' : ''}">${prio}<button class="btn-link" data-action="aufgabe-bearbeiten" data-id="${esc(t.id)}">${esc(t.titel)}</button>
+        <div class="meta">${t.contactId ? `<a href="#/kontakte/${esc(t.contactId)}">${esc(S.kontaktName(t.contactId))}</a>` : ''}${o ? ` · <a href="#/auftraege/${esc(o.id)}">${esc(o.nummer)}</a>` : ''}${t.erledigt ? ' · erledigt ' + U.fmtDatum(t.erledigt) : ''}</div></span>
       <span class="klein ${t.erledigt ? 'muted' : U.faelligKlasse(t.faellig)}" style="flex:0 0 80px;text-align:right">${U.fmtDatum(t.faellig)}</span>
     </li>`;
   }
@@ -21,7 +22,8 @@ CRM.views = CRM.views || {};
 
   function render() {
     const h = U.heute(), woche = U.inTagen(7);
-    const offen = U.sortiere(S.offeneAufgaben(), 'faellig');
+    const rang = { Dringend: 0, Hoch: 1, Normal: 2 };
+    const offen = U.sortiere(S.offeneAufgaben(), 'faellig').sort((a, b) => (rang[a.prioritaet] ?? 2) - (rang[b.prioritaet] ?? 2));
     const ueberfaellig = offen.filter((t) => t.faellig && t.faellig < h);
     const heute = offen.filter((t) => t.faellig === h);
     const dieseWoche = offen.filter((t) => t.faellig > h && t.faellig <= woche);
