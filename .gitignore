@@ -1,0 +1,15 @@
+# Geheimnisse und Kundendaten: gehören nie in dieses Repo
+.env
+.env.*
+*.token
+data/
+*.csv
+crm-sicherung_*.json
+
+# Node
+node_modules/
+
+# System
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CRM</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">CRM <span class="brand-sub">Joel</span></div>
+    <nav id="nav">
+      <a href="#/uebersicht" data-route="uebersicht">Übersicht</a>
+      <a href="#/kontakte" data-route="kontakte">Kontakte</a>
+      <a href="#/pipeline" data-route="pipeline">Pipeline</a>
+      <a href="#/aufgaben" data-route="aufgaben">Aufgaben</a>
+      <a href="#/einstellungen" data-route="einstellungen">Einstellungen</a>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="btn btn-primary btn-block" data-action="kontakt-neu">+ Kontakt</button>
+      <button class="btn btn-block" data-action="vorgang-neu">+ Vorgang</button>
+      <button class="btn btn-block" data-action="aufgabe-neu">+ Aufgabe</button>
+      <div class="syncbox" id="syncbox"></div>
+    </div>
+  </aside>
+  <main id="view" class="view"></main>
+</div>
+<dialog id="modal"><div id="modal-body"></div></dialog>
+<div id="toast" class="toast" hidden></div>
+<input type="file" id="datei-import" hidden>
+
+<script src="js/util.js"></script>
+<script src="js/github.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/store.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/forms.js"></script>
+<script src="js/views/uebersicht.js"></script>
+<script src="js/views/kontakte.js"></script>
+<script src="js/views/pipeline.js"></script>
+<script src="js/views/aufgaben.js"></script>
+<script src="js/views/einstellungen.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
