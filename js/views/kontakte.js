@@ -58,6 +58,7 @@ CRM.views = CRM.views || {};
           <dt>Branche</dt><dd>${esc(c.branche) || '–'}${c.ustId ? ` · USt-IdNr. ${esc(c.ustId)}` : ''}</dd>
           <dt>Quelle</dt><dd>${esc(c.quelle) || '–'}</dd>
           <dt>E-Mail-Werbung</dt><dd>${c.einwilligungEmail ? `<span class="badge Kunde">Einwilligung seit ${U.fmtDatum(c.einwilligungDatum)}</span>` : '<span class="badge">keine Einwilligung</span>'}</dd>
+          ${(c.tags || []).length ? `<dt>Schlagwörter</dt><dd>${c.tags.map((t) => `<span class="badge">${esc(t)}</span>`).join(' ')}</dd>` : ''}
           <dt>Umsatz</dt><dd>${U.fmtEur(umsatz)} bezahlt netto${offen ? ` · <span class="ueberfaellig">${U.fmtEur(offen)} offen</span>` : ''}</dd>
         </dl>
         ${c.notizen ? `<h3 style="margin-top:12px">Notizen</h3><div class="zeitstrahl"><div class="text">${esc(c.notizen)}</div></div>` : ''}
@@ -70,6 +71,8 @@ CRM.views = CRM.views || {};
           <button class="btn btn-klein" data-action="termin-neu" data-contact-id="${esc(c.id)}">+ Termin</button>
           <button class="btn btn-klein" data-action="aufgabe-neu" data-contact-id="${esc(c.id)}">+ Aufgabe</button>
         </div>
+
+        ${CRM.journeyUI ? CRM.journeyUI.leiste(c.id) : ''}
 
         <div class="abschnitt-kopf"><h3>Vorgänge</h3></div>
         ${vorgaenge.length ? `<ul class="liste">${vorgaenge.map((d) => `

@@ -46,7 +46,7 @@ window.CRM = window.CRM || {};
     angebotsFuss: 'Alle Preise verstehen sich netto zuzüglich der gesetzlichen Umsatzsteuer.',
   });
 
-  const SAMMLUNGEN = ['contacts', 'deals', 'activities', 'tasks', 'quotes', 'orders', 'invoices', 'times', 'expenses', 'appointments', 'journal'];
+  const SAMMLUNGEN = ['contacts', 'deals', 'activities', 'tasks', 'quotes', 'orders', 'invoices', 'times', 'expenses', 'appointments', 'journal', 'touchpoints', 'campaigns', 'workflows', 'workflowLaeufe'];
   const leer = () => {
     const d = { version: 2, updatedAt: U.nowIso(), stammdaten: STAMMDATEN_LEER() };
     for (const k of SAMMLUNGEN) d[k] = [];
@@ -61,6 +61,9 @@ window.CRM = window.CRM || {};
     d.version = 2;
     for (const k of SAMMLUNGEN) if (!Array.isArray(d[k])) d[k] = [];
     d.stammdaten = Object.assign(STAMMDATEN_LEER(), d.stammdaten || {});
+    if (!d.journey || typeof d.journey !== 'object') d.journey = {};
+    d.workflowStand = Object.assign({ letzterLauf: null, letzterTag: null }, d.workflowStand || {});
+    d.contacts.forEach((c) => { if (!Array.isArray(c.tags)) c.tags = []; if (c.einwilligungTracking === undefined) c.einwilligungTracking = false; });
     if (!d.updatedAt) d.updatedAt = U.nowIso();
     return d;
   }
@@ -133,7 +136,7 @@ window.CRM = window.CRM || {};
   const kontaktName = (id) => { const c = kontakt(id); return c ? (c.firma || c.person || '(ohne Namen)') : '(gelöschter Kontakt)'; };
   const KONTAKT_LEER = () => ({
     id: U.uid(), firma: '', person: '', email: '', telefon: '', website: '', strasse: '', plz: '', ort: '', land: 'Deutschland', ustId: '',
-    branche: '', quelle: '', status: 'Interessent', einwilligungEmail: false, einwilligungDatum: '', notizen: '',
+    branche: '', quelle: '', status: 'Interessent', einwilligungEmail: false, einwilligungDatum: '', einwilligungTracking: false, tags: [], notizen: '',
     erstellt: U.nowIso(), geaendert: U.nowIso(),
   });
   function neuerKontakt(f) {
@@ -197,7 +200,7 @@ window.CRM = window.CRM || {};
 
   // ---- Aktivitäten
   function neueAktivitaet(f) {
-    const a = Object.assign({ id: U.uid(), contactId: '', dealId: '', orderId: '', typ: 'Notiz', text: '', betreff: '', datum: U.nowIso() }, f);
+    const a = Object.assign({ id: U.uid(), contactId: '', dealId: '', orderId: '', typ: 'Notiz', text: '', betreff: '', datum: U.nowIso() }, f, { erfasst: U.nowIso() });
     if (!a.datum) a.datum = U.nowIso();
     data.activities.push(a);
     commit(a.typ + ' bei ' + kontaktName(a.contactId));
@@ -212,6 +215,8 @@ window.CRM = window.CRM || {};
     data.activities.filter((a) => a.contactId === contactId).forEach((a) => e.push({ datum: a.datum, art: a.typ, gruppe: 'Gespräch', titel: a.betreff || a.typ, text: a.text, id: a.id, aktion: 'aktivitaet-bearbeiten', link: '' }));
     data.appointments.filter((t) => t.contactId === contactId && t.datum <= heute()).forEach((t) => e.push({ datum: t.datum + 'T' + (t.von || '00:00') + ':00', art: 'Termin', gruppe: 'Termin', titel: t.titel, text: [t.ort, t.notizen].filter(Boolean).join(' · '), id: t.id, aktion: 'termin-bearbeiten' }));
     data.tasks.filter((t) => t.contactId === contactId && t.erledigt).forEach((t) => e.push({ datum: t.erledigt, art: 'Aufgabe', gruppe: 'Aufgabe', titel: 'Erledigt: ' + t.titel, text: '', id: t.id, aktion: 'aufgabe-bearbeiten' }));
+    const JN = window.CRMJourney ? window.CRMJourney.ART_NAME : {};
+    (data.touchpoints || []).filter((t) => t.kontaktId === contactId).forEach((t) => e.push({ datum: t.datum, art: JN[t.art] || t.art, gruppe: 'Journey', titel: t.titel || JN[t.art] || t.art, text: t.wert ? fmtEurLokal(t.wert) : (t.quelle || ''), id: t.id, aktion: '' }));
     const belege = [];
     data.deals.filter((d) => d.contactId === contactId).forEach((d) => belege.push({ id: d.id, art: 'Vorgang', link: '#/pipeline', titel: d.titel }));
     data.quotes.filter((q) => q.contactId === contactId).forEach((q) => belege.push({ id: q.id, art: 'Angebot', link: '#/angebote/' + q.id, titel: q.nummer + ' ' + q.titel }));
@@ -221,6 +226,8 @@ window.CRM = window.CRM || {};
     data.journal.filter((j) => belegIds.has(j.belegId)).forEach((j) => { const b = belegIds.get(j.belegId); e.push({ datum: j.datum, art: b.art, gruppe: 'Beleg', titel: j.ereignis + ': ' + b.titel, text: j.notiz, link: b.link }); });
     return e.sort((a, b) => a.datum < b.datum ? 1 : a.datum > b.datum ? -1 : 0);
   }
+
+  const fmtEurLokal = (n) => (Number(n) || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
   // ---- Aufgaben
   const aufgabe = (id) => data.tasks.find((t) => t.id === id);
@@ -572,6 +579,20 @@ window.CRM = window.CRM || {};
       t({ contactId: c3.id, titel: 'Beispiel-Workflow für Pixelwald vorbereiten', faellig: h });
       t({ contactId: c4.id, titel: 'Rechnung ' + r2.nummer + ' telefonisch nachfassen', faellig: U.inTagen(-3), prioritaet: 'Dringend' });
       t({ contactId: '', titel: 'LinkedIn-Beitrag zur Schulung', faellig: '' });
+      // Journey: Kampagne, Ereignisse, Workflows (fiktiv)
+      c2.einwilligungTracking = true; c4.einwilligungTracking = true; c2.tags = ['Newsletter']; c4.tags = ['Schulung'];
+      const kamp = { id: U.uid(), name: 'Praxis-Newsletter Oktober', datum: U.inTagen(-20), kanal: 'Brevo', betreff: '3 Automationen, die jede Kanzlei braucht', ziel_url: 'https://beispiel.de/automation', extern_id: '', aggregat: { gesendet: 140, geoeffnet: 51, geklickt: 9, abgemeldet: 1 }, notiz: '', erstellt: U.nowIso() };
+      d.campaigns.push(kamp);
+      const tp = (kontaktId, art, tage, extra) => d.touchpoints.push(Object.assign({ id: U.uid(), kontaktId, art, datum: new Date(Date.now() - tage * 864e5).toISOString(), kampagneId: null, titel: '', wert: null, quelle: '', externId: null, erfasst: new Date(Date.now() - tage * 864e5).toISOString() }, extra || {}));
+      tp(c2.id, 'newsletter_gesendet', 20, { kampagneId: kamp.id, titel: kamp.name, quelle: 'Newsletter' });
+      tp(c2.id, 'newsletter_geklickt', 19.5, { kampagneId: kamp.id, titel: kamp.name, quelle: 'Newsletter' });
+      tp(c4.id, 'newsletter_gesendet', 20, { kampagneId: kamp.id, titel: kamp.name, quelle: 'Newsletter' });
+      tp(c4.id, 'newsletter_geoeffnet', 19, { kampagneId: kamp.id, titel: kamp.name, quelle: 'Newsletter' });
+      tp(c4.id, 'empfehlung', 15, { titel: 'Hat die Schulung einer Kollegin empfohlen' });
+      tp(c1.id, 'website', 8, { titel: 'Kontaktformular Website', quelle: 'Website' });
+      const vorl = window.CRMJourney ? window.CRMJourney.vorlagen('solo') : [];
+      vorl.filter((v) => ['Angebot nachfassen', 'Überfällige Rechnung', 'Newsletter-Klick nachfassen'].includes(v.name)).forEach((v) => d.workflows.push({ id: U.uid(), name: v.name, beschreibung: v.beschreibung, aktiv: v.name !== 'Newsletter-Klick nachfassen', mehrfach: false, ausloeser: v.ausloeser, schritte: v.schritte, erstellt: U.nowIso(), geaendert: U.nowIso() }));
+      d.workflowStand = { letzterLauf: U.nowIso(), letzterTag: null };
     } finally {
       data = alt;
     }

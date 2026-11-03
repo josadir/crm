@@ -22,6 +22,9 @@ Eigenes CRM mit ERP-Funktionen für einen Einzelunternehmer. Reine Web-App ohne 
 | Finanzen | Rechnungen | RE-Nummernkreis, eingefrorene Positionen, Zahlungsziel, Zahlung erfassen, Mahnstufen, Storno-Beleg, Druckansicht mit Pflichtangaben, Schnellrechnung |
 | Finanzen | Ausgaben | Belege mit Kategorie, Brutto/USt/Netto, wiederkehrende Posten, Monatsansicht, CSV |
 | Finanzen | Finanzen | Monatsübersicht (gestellt, bezahlt, Ausgaben, Ergebnis), Umsatzsteuer je Quartal, offene Posten, Exporte |
+| Marketing | Customer Journey | Trichter über sechs Stufen (Aufmerksamkeit bis Empfehlung), Dauer zwischen den Stufen, Quellen der Käufer, typische Wege bis zum Kauf |
+| Marketing | Newsletter | Kampagnen, Öffnungs- und Klickraten, Käufe bis 7 Tage nach Klick, UTM-Links, Import der Versandberichte (CSV aus Brevo, Mailchimp, CleverReach) |
+| Marketing | Workflows | Eigene Regeln wie bei HubSpot oder Asana: Auslöser, dann Schritte (Aktion, Wenn/Dann, Warten). Vorlagen, Test mit einem Kontakt, Protokoll je Lauf |
 | | Einstellungen | Stammdaten (Absender, Steuernummer, Bank, Stundensatz, Zahlungsziel, § 19), GitHub-Anbindung, Sicherung, CSV, Kalender |
 
 ## Belegregeln
@@ -35,6 +38,22 @@ Eigenes CRM mit ERP-Funktionen für einen Einzelunternehmer. Reine Web-App ohne 
 5. **Kontakte mit Belegen** werden nicht gelöscht, sondern auf „Archiv" gesetzt.
 
 Typischer Weg: Vorgang in der Pipeline → Angebot → angenommen → Auftrag (Zeiten erfassen, Positionen) → Rechnung → Zahlung → Vorgang in Nachbereitung → Gewonnen.
+
+## Workflows, Customer Journey, Newsletter
+
+**Workflows** starten mit einem Auslöser und führen danach Schritte aus.
+
+- Auslöser: neuer Kontakt, Ereignis (z. B. Newsletter geklickt, Zahlung, Bewertung), Journey-Stufe erreicht, Vorgang wechselt Phase, Aufgabe erledigt, keine Aktivität seit X Tagen, Angebot seit X Tagen ohne Antwort, Rechnung X Tage überfällig, manuell.
+- Schritte: Aufgabe anlegen, Notiz in die Historie, Schlagwort setzen oder entfernen, Status setzen, Vorgang anlegen, Phase setzen, Ereignis eintragen, Webhook (z. B. n8n), Wenn/Dann mit Ja- und Nein-Zweig, Warten, Ende.
+- Platzhalter in Texten: `{name}`, `{vorname}`, `{firma}`, `{email}`, `{objekt}`, `{datum}`.
+
+Dieses CRM hat keinen Server. Workflows laufen deshalb im Browser, solange das CRM geöffnet ist (jede Minute und nach jeder Änderung). Was in der Zwischenzeit fällig wurde, holt es beim nächsten Öffnen nach. Am besten nur auf einem Gerät gleichzeitig offen haben, sonst können Aktionen doppelt laufen.
+
+**Customer Journey**: Jeder Kontakt sammelt Kontaktpunkte. Die meisten entstehen aus vorhandenen Daten: Kontakt angelegt, Gespräche, Termine, Phasenwechsel, gesendete Angebote, bezahlte Rechnungen, erledigte Aufgaben. Weitere kommen über den Newsletter-Import oder „+ Ereignis" in der Kontaktakte dazu. Welche Art welcher Stufe zählt, legt „Stufen einstellen" fest.
+
+**Newsletter und Datenschutz**: Öffnungen und Klicks personenbezogen auszuwerten braucht eine eigene Einwilligung (§ 25 TDDDG, DSGVO). Jeder Kontakt hat deshalb die Häkchen „E-Mail-Werbung" und „Erfolgsmessung". Ohne Erfolgsmessung zählt der Import nur anonym je Kampagne. Abmeldungen entfernen die Werbeeinwilligung.
+
+Die Engine (`js/journey.js`) und die Ansichten Workflows, Customer Journey und Newsletter sind identisch mit dem Team-CRM (`..\CRM-Team`).
 
 ## Kalender
 
@@ -141,6 +160,9 @@ js/csv.js             CSV lesen/schreiben
 js/ics.js             Kalender-Export (.ics) und Google-Kalender-Links
 js/store.js           Datenmodell, Belegregeln, Nummernkreise, Journal, CRUD, Auswertungen, Demo-Daten
 js/sync.js            Abgleich mit GitHub, Konflikterkennung
+js/journey.js         Customer Journey, Analytics, Workflow-Engine (identisch im Team-CRM)
+js/auto-solo.js       Touchpoints aus den Daten ableiten, Workflows im Browser ausführen
+js/journey-ui.js      Journey-Leiste und Ereignisse in der Kontaktakte
 js/forms.js           Alle Formulare und Aktionen
 js/views/belege.js    Dokumentansicht, Positionseditor, Summen, Verlauf
 js/views/*.js         Die Ansichten

@@ -5,6 +5,7 @@
   "description": "Eigenes CRM: statische Web-App, Daten als JSON in einem privaten GitHub-Repo",
   "scripts": {
     "start": "npx -y serve -l 3000 .",
-    "check": "node --check js/util.js && node --check js/github.js && node --check js/csv.js && node --check js/ics.js && node --check js/store.js && node --check js/sync.js && node --check js/forms.js && node --check js/views/belege.js && node --check js/views/uebersicht.js && node --check js/views/kontakte.js && node --check js/views/historie.js && node --check js/views/pipeline.js && node --check js/views/angebote.js && node --check js/views/auftraege.js && node --check js/views/zeiten.js && node --check js/views/aufgaben.js && node --check js/views/termine.js && node --check js/views/rechnungen.js && node --check js/views/ausgaben.js && node --check js/views/finanzen.js && node --check js/views/einstellungen.js && node --check js/app.js"
+    "check": "node scripts/check.mjs",
+    "test": "node tests/journey.test.mjs"
   }
 }

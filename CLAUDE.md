@@ -10,5 +10,7 @@
 - Sicherheit: jede Ausgabe von Nutzerdaten durch `U.esc`. Der GitHub-Token bleibt im localStorage und darf nie in Dateien, Logs oder Commits landen. Kundendaten gehören nicht in dieses Repo (nur `data/` im privaten Daten-Repo).
 - Läuft auch per Doppelklick auf `index.html` (file://). Deshalb keine ES-Module, keine Webfonts, keine externen Skripte.
 - Prüfen nach Änderungen: `npm run check`, dann Edge headless mit der Testseite (Demo-Daten laden, alle Ansichten rendern, Formulare durchspielen) oder im Browser alle Ansichten mit Demo-Daten durchklicken.
+- Gemeinsame Dateien mit dem Team-CRM (`..\CRM-Team`): `js/journey.js`, `js/journey-ui.js`, `js/views/workflows.js`, `js/views/journey.js`, `js/views/newsletter.js`. Immer in beiden Repos gleich halten. Unterschiede stecken nur im Adapter `js/auto-solo.js`.
+- Workflows laufen im Browser (`js/auto-solo.js`). Der Laufstatus wird nur committet, wenn etwas passiert ist, damit nicht jede Minute ein Commit im Daten-Repo landet.
 - Git: nach jedem Commit sofort `git push` (Vorgabe Joel, 02.11.2026).
 - Datum: per `date` ermitteln, nie raten.

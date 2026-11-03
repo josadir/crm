@@ -234,3 +234,81 @@ ol.schritte li { margin-bottom: 4px; }
   .beleg { border: none; box-shadow: none; margin: 0; padding: 0; max-width: none; }
   @page { size: A4; margin: 18mm 16mm; }
 }
+
+/* ---------- Gemeinsame Bausteine für Journey, Newsletter, Workflows ---------- */
+:root { --accent-dark: #0b7682; }
+.modal-kopf { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.modal-kopf h2 { margin: 0; flex: 1; font-size: 16px; }
+.btn-icon { border: none; background: none; cursor: pointer; font-size: 20px; padding: 4px 6px; color: inherit; line-height: 1; }
+.btn-icon.klein { font-size: 15px; }
+.panel-kopf { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.panel-kopf h2, .panel-kopf h3 { margin: 0; }
+.panel-kopf .btn:first-of-type { margin-left: auto; }
+.liste .ende { text-align: right; flex: 0 0 auto; font-size: 12px; }
+li.klickbar { cursor: pointer; }
+li.klickbar:hover { background: #f8fafc; }
+.hinweis.info { background: var(--accent-soft); border-color: #9fd9df; }
+.badge.Inaktiv { background: #f3f4f6; color: #6b7280; }
+.badge.Interessent { background: #fff3cd; color: #7a4b00; }
+.nur-mobil { display: none !important; }
+.abschnitt { margin-top: 16px; }
+/* ---------- Customer Journey ---------- */
+.jy-stufe { display: grid; grid-template-columns: 120px 1fr 170px; gap: 10px; align-items: center; padding: 6px 4px; border-radius: 6px; }
+.jy-stufe:hover { background: var(--accent-soft); }
+.jy-name { font-weight: 600; font-size: 13px; }
+.jy-spur { background: #e2e9f1; border-radius: 5px; height: 14px; overflow: hidden; }
+.jy-balken { background: linear-gradient(90deg, var(--side), var(--accent)); height: 100%; }
+.jy-wert { font-size: 13px; text-align: right; }
+.jy-tabelle { width: 100%; border-collapse: collapse; font-size: 13px; }
+.jy-tabelle th, .jy-tabelle td { padding: 6px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+.jy-tabelle th { font-size: 12px; color: var(--muted); font-weight: 600; }
+.jy-tabelle .rechts { text-align: right; }
+.jy-tabelle tr.klickbar { cursor: pointer; }
+.jy-tabelle tr.klickbar:hover { background: #f8fafc; }
+.jy-leiste { display: flex; gap: 2px; margin: 6px 0 4px; }
+.jy-punkt { flex: 1; text-align: center; position: relative; padding-top: 16px; color: var(--muted); }
+.jy-punkt span { position: absolute; top: 3px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #d3dde9; border: 2px solid #fff; box-shadow: 0 0 0 1px #d3dde9; z-index: 1; }
+.jy-punkt::before { content: ''; position: absolute; top: 8px; left: -50%; right: 50%; height: 3px; background: #d3dde9; }
+.jy-punkt:first-child::before { display: none; }
+.jy-punkt.an { color: var(--text); }
+.jy-punkt.an span { background: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.jy-punkt.an::before { background: var(--accent); }
+.jy-punkt.aktuell span { background: var(--side); box-shadow: 0 0 0 3px #9fd9df; width: 14px; height: 14px; margin-left: -7px; top: 2px; }
+.jy-punkt.aktuell .klein { font-weight: 700; }
+
+/* ---------- Workflow-Baukasten ---------- */
+.wf-baum { padding: 6px 0 10px; }
+.wf-kette { display: flex; flex-direction: column; align-items: stretch; }
+.wf-knoten { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 10px 12px; box-shadow: var(--shadow); font-size: 13px; cursor: pointer; }
+.wf-knoten:hover { border-color: var(--accent); }
+.wf-knoten .dehnen { flex: 1; min-width: 0; }
+.wf-sym { font-size: 16px; width: 22px; text-align: center; flex: 0 0 22px; }
+.wf-ausloeser { border-left-color: var(--side); background: #f3f6fa; }
+.wf-bedingung > .wf-knoten { border-left-color: #b45309; }
+.wf-warten { border-left-color: #6b7280; }
+.wf-ende, .wf-ende-fix { border-left-color: #9ca3af; cursor: default; }
+.wf-ende-fix { background: #f8fafc; }
+.wf-steuer { display: flex; gap: 0; flex: 0 0 auto; }
+.wf-steuer .btn-icon { font-size: 15px; padding: 2px 5px; color: var(--muted); }
+.wf-plus-zeile { display: flex; justify-content: center; position: relative; height: 30px; align-items: center; }
+.wf-plus-zeile::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 2px solid #c6d3e1; }
+.wf-plus { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); background: #fff; color: var(--accent-dark); font-size: 16px; line-height: 1; cursor: pointer; padding: 0; }
+.wf-plus:hover { background: var(--accent); color: #fff; }
+.wf-zweige { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0; padding: 0 0 0 0; }
+.wf-zweig { border: 1px dashed #c6d3e1; border-radius: var(--radius); padding: 6px; margin-top: 8px; background: #fbfcfe; }
+.wf-zweig-kopf { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+.wf-zweig-kopf.ja { background: #d7f1f4; color: #0b5f69; }
+.wf-zweig-kopf.nein { background: #fee2e2; color: #991b1b; }
+.wf-bed-zeile { display: grid; grid-template-columns: 1.3fr 1fr 1.3fr auto; gap: 6px; margin-bottom: 6px; }
+.wf-wahl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wf-wahl .btn { flex-direction: column; padding: 16px 10px; font-size: 15px; white-space: normal; }
+.wf-layout { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+details summary { cursor: pointer; color: var(--accent-dark); }
+@media (max-width: 760px) {
+  .jy-stufe { grid-template-columns: 90px 1fr; }
+  .jy-wert { grid-column: 1 / -1; text-align: left; }
+  .wf-zweige { grid-template-columns: 1fr; }
+  .wf-bed-zeile { grid-template-columns: 1fr 1fr; }
+  .wf-layout { grid-template-columns: 1fr; }
+  .jy-tabelle { font-size: 12px; }
+}

@@ -33,7 +33,7 @@ CRM.views = CRM.views || {};
       <h1>Historie ${c ? `<span class="muted klein">${esc(c.firma || c.person)}</span>` : '<span class="muted klein">alle Kunden</span>'}</h1>
       <div class="toolbar">
         <select id="historie-kontakt" style="min-width:260px">${U.options(kontakte.map((k) => [k.id, (k.firma || k.person) + (k.firma && k.person ? ' · ' + k.person : '')]), zustand.contactId, 'Alle Kunden (letzte 200 Einträge)')}</select>
-        <select id="historie-gruppe">${U.options([['Gespräch', 'Gespräche'], ['Beleg', 'Belege und Phasen'], ['Termin', 'Termine'], ['Aufgabe', 'Erledigte Aufgaben']], zustand.gruppe, 'Alles')}</select>
+        <select id="historie-gruppe">${U.options([['Gespräch', 'Gespräche'], ['Journey', 'Newsletter & Ereignisse'], ['Beleg', 'Belege und Phasen'], ['Termin', 'Termine'], ['Aufgabe', 'Erledigte Aufgaben']], zustand.gruppe, 'Alles')}</select>
         <input type="search" id="historie-suche" placeholder="Im Verlauf suchen …" value="${esc(zustand.suche)}">
         <span class="abstand"></span>
         ${c ? `<a class="btn" href="#/kontakte/${esc(c.id)}">Kontaktakte</a><button class="btn btn-primary" data-action="aktivitaet-neu" data-contact-id="${esc(c.id)}">+ Gespräch erfassen</button>` : '<button class="btn btn-primary" data-action="aktivitaet-neu">+ Gespräch erfassen</button>'}

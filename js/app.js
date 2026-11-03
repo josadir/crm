@@ -89,4 +89,5 @@ window.CRM = window.CRM || {};
 
   render();
   CRM.sync.pull();
+  if (CRM.auto && CRM.auto.start) CRM.auto.start();
 })(window.CRM);

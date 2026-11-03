@@ -58,6 +58,8 @@ window.CRM = window.CRM || {};
           <div class="feld feld-check" style="align-self:end"><input type="checkbox" id="einw" name="einwilligungEmail" ${c.einwilligungEmail ? 'checked' : ''}><label for="einw">Einwilligung E-Mail-Werbung liegt vor</label></div>
           <div class="feld"><label>Einwilligung seit</label><input name="einwilligungDatum" type="date" value="${esc(c.einwilligungDatum)}"></div>
         </div>
+        <div class="feld feld-check"><input type="checkbox" id="einwt" name="einwilligungTracking" ${c.einwilligungTracking ? 'checked' : ''}><label for="einwt">Einwilligung in die Erfolgsmessung (Öffnungen und Klicks im Newsletter)</label></div>
+        <div class="feld"><label>Schlagwörter (mit Komma)</label><input name="tags" value="${esc((c.tags || []).join(', '))}" placeholder="Newsletter, Schulung"></div>
         <div class="feld"><label>Notizen</label><textarea name="notizen">${esc(c.notizen)}</textarea></div>
         ${aktionen('kontakt-loeschen', c.id)}
       </form>`;
@@ -68,6 +70,7 @@ window.CRM = window.CRM || {};
     if (!f.firma && !f.person) { U.toast('Firma oder Ansprechperson angeben', 'fehler'); return; }
     if (f.einwilligungEmail && !f.einwilligungDatum) f.einwilligungDatum = U.heute();
     if (!f.einwilligungEmail) f.einwilligungDatum = '';
+    f.tags = String(f.tags || '').split(',').map((t) => t.trim()).filter(Boolean);
     const id = f.id; delete f.id;
     if (id) { S.aendereKontakt(id, f); U.toast('Kontakt gespeichert', 'ok'); }
     else { const c = S.neuerKontakt(f); U.toast('Kontakt angelegt', 'ok'); location.hash = '#/kontakte/' + c.id; }
